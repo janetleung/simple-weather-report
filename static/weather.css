@@ -1,0 +1,232 @@
+* {
+    margin:0 ;padding:0
+}
+
+html,body {
+    width: 100%;
+    height: 100%;
+}
+
+.head {
+    width: 100%;
+    height:10%;
+    background-color: white;
+    border-bottom: solid 1px #DCDCDC;
+    box-shadow: 0 1px 1px 2px #DCDCDC;
+}
+
+.content {
+    width: 85%;
+    height: 100%;
+    margin: 0 auto;
+}
+
+
+.logo {
+    width: auto;
+    height:55%;
+    float: left;
+    margin-top: 15px;
+}
+
+.navigation-list {
+    list-style-type: none;
+    font-family: '微软雅黑';
+}
+
+.navigation-list li {
+    float: right;
+    width: 120px;
+    margin-top: 22px;
+}
+
+.content a:link,.content a:visited {
+    text-decoration: none;
+    color: #696969;
+}
+
+.content a:hover,.content a:active {
+    text-decoration: none;
+    color: 	#3CB371;
+}
+
+#login {
+    color: white;
+    border: solid 1px #2E8B57;
+    padding: 5px 15px;
+    background-color: #3CB371;
+    box-shadow: 1px 1px 1px black;
+    border-radius: 3px;
+}
+
+#login:hover,#login:active {
+    background-color: #20B2AA;
+}
+
+.body {
+    width: 100%;
+    height:90%;
+}
+
+#container {
+    width: 100%;
+    height: 100%;
+    position: relative;
+}
+
+.button {
+    width: 300px;
+    height: 35px;
+    margin-top: 15px;
+    vertical-align: middle;
+    position:absolute;
+    left: 35%;
+    top: 5px;
+    z-index: 999;
+    text-align: center;
+    border-radius: 6px;
+}
+
+.weather {
+    width: 50%;
+    height: 100%;
+    background-color: rgba(82, 178, 131,0.85);
+    float: left;
+    border-radius: 5px 0 0 5px;
+    font-family: '微软雅黑';
+    line-height:33px;
+    font-size: 16px;
+}
+
+.weather a:link,.weather a:visited {
+    text-decoration: none;
+    color: white;
+}
+
+.air a:link,.air a:visited {
+    text-decoration: none;
+    color: black;
+}
+
+.air {
+    width: 50%;
+    height: 100%;
+    background-color:rgba(255, 250, 250, 0.85);
+    float: left;
+    border-radius:0 5px 5px 0;
+    font-family: '微软雅黑';
+    line-height: 33px;
+    font-size: 16px;
+}
+
+.information {
+    width: 330px;
+    height: 300px;
+    position: absolute;
+    left: 65%;
+    top: 70px;
+    z-index: 999;
+    background-color: white;
+    border-radius: 10px;
+    border: solid 1px #DCDCDC;
+}
+
+#search {
+    width: 85%;
+    height: 30px;
+    border-radius: 7px;
+    margin: 17px 23px ;
+    font-family: '微软雅黑';
+    font-size: 16px;
+    box-shadow: inset 1px 1px 5px rgba(0, 0, 0, 0.25);
+    border: 0px;
+    padding-left: 5px;
+
+}
+
+.information-container {
+    padding-top: 10px;
+    padding-right: 23px;
+    padding-left: 23px;
+}
+
+#time {
+    font-family: '微软雅黑';
+    font-size: 16px;
+    color: gray;
+}
+
+#icon {
+    float: left;
+    margin: 10px 0 0 0;
+    padding-right: 20px;
+    padding-left: -3px;
+}
+
+.temperature span {
+    font-family: '微软雅黑';
+    font-size: 50px;
+    color:#333;
+    line-height: 85px;
+}
+
+.temperature p {
+    font-family: "AvenirNextCondensed-Regular", "AvenirNextLTW01-Condens 721299", "Arial Narrow", Verdana, sans-serif;
+    font-size: 14px;
+    color:#333;
+}
+
+.datagram {
+    width: 85%;
+    border-right: dashed 1px #333;
+    position: absolute;
+}
+
+.datagram-clear {
+    clear: both;
+}
+
+.datagram-big,.datagram-inside,.datagram-small {
+    width: 91%;
+    height: 20px;
+    display: block;
+    border-bottom: dashed 1px #333;
+    margin-left: 25px;
+    float: left;
+
+}
+
+.datagram-small {
+    border-bottom: solid 3px;
+}
+
+.datagram span {
+    text-align: right;
+    position: relative;
+    left: 103%;
+    font-family: "AvenirNextCondensed-Medium", "AvenirNextLTW01-MediumC  721311", "Arial Narrow", Verdana, sans-serif;
+    font-size: 12px;
+}
+
+.label {
+    width: 15.2px;
+    height: 3px;
+    border-left:solid #333 2px;
+    border-top: 0;
+    border-bottom: 0;
+    border-right: 0;
+    display: block;
+    float: left;
+    left: 20%;
+    margin-left: 25px;
+    margin-top: 67px;
+}
+
+.text {
+    font-family: '微软雅黑';
+    font-size: 14px;
+    width: 50px;
+    float: left;
+    margin-left: -25px;
+    margin-top: 3px;
+}

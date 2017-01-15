@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>实时天气预报</title>
+        <link rel="stylesheet" href="weather.css">
+        <script type="text/javascript" src="/js/jquery-1.4.4.min.js"></script>
+        <script src="http://webapi.amap.com/maps?v=1.3&key=9669d8eb412ac96cb6db5d20ebba31ba&callback=init"></script>
+        <script src='/js/skycons.js'></script>
+    </head>
+    <body>
+        <div class="head">
+            <div class="content">
+                <a href="#"><img src="image/logo-name-black.png" alt="实时天气预报" class="logo" /></a>
+                <ul class="navigation-list">
+                    <li ><a id="login" href="#">登录/注册</a></li>
+                    <li><a href="www.baidu.com">加入我们</a></li>
+                    <li><a href="www.baidu.com">联系我们</a></li>
+                    <li><a href="#">网页版</a></li>
+                    <li><a href="www.baidu.com">天气预报API</a></li>
+                    <li><a href="www.baidu.com">天气预报App</a></li>
+                </ul>
+            </div>
+        </div><!--head结束-->
+        <div class="body">
+            <div id="container">
+                <div class="button">
+                    <div class="weather">
+                        <a href="#">天气（℃）</a>
+                    </div>
+                    <div class="air">
+                        <a href="#">空气（PM2.5）</a>
+                    </div>
+                </div>
+                <div class="information">
+                    <form class="search" onsubmit="return false">
+                        <input id="search" type="text" name="address" value="" />
+                    </form>
+
+                    <div class="information-container">
+                        <p id="time"></p>
+                        <div class="temperature">
+                            <canvas id="icon" width="60" height="60"></canvas>
+                            <span></span>
+                            <br />
+                            <p>未来两小时不会有雨，放心出门吧</p>
+                        </div>
+                    </div>
+                    <div class="datagram">
+                        <div class="datagram-big">
+                            <span>大雨</span>
+                        </div>
+                        <div class="datagram-inside">
+                            <span>中雨</span>
+                        </div>
+                        <div class="datagram-small">
+                            <span>小雨</span>
+                        </div>
+                        <div class="datagram-clear"></div>
+                        <div class="dot-clear"></div>
+                        <div class="dot">
+                            <span class="label"></span>
+                            <span class="label"><span class="text">10分钟</span></span>
+                            <span class="label"></span>
+                            <span class="label"><span class="text">30分钟</span></span>
+                            <span class="label"></span>
+                            <span class="label"><span class="text">50分钟</span></span>
+                            <span class="label"></span>
+                        </div>
+                    </div>
+                    <div class="timeline"></div>
+                </div>
+            </div><!--body结束-->
+
+
+
+    <script>
+        $(document).ready(function () {
+            var map = new AMap.Map('container', {
+                center: [113.24933,23.115761],
+                zoom: 9
+            });
+            map.plugin(["AMap.ToolBar"], function() {
+                map.addControl(new AMap.ToolBar());
+            });//地图加载
+
+            var skycons = new Skycons();//new icon
+
+            var marker = new AMap.Marker({
+                icon : '/image/biaoji.png',
+                map: map,
+            });
+
+            function markerup (lng,lat) {
+                marker.setPosition([lng,lat]);
+            };//建立标识的方法
+
+            map.plugin('AMap.Geolocation', function() {
+                geolocation = new AMap.Geolocation({
+                    enableHighAccuracy: true,
+                    showButton: false,
+                    showMarker: false,
+                    timeout: 10000,
+                    zoomToAccuracy: false,
+                });
+                map.addControl(geolocation);
+                geolocation.getCurrentPosition();
+                AMap.event.addListener(geolocation, 'complete', onComplete);
+                AMap.event.addListener(geolocation, 'error', onError);
+            });//初始地址定位
+
+            function onComplete(data) {
+                weatherApi(data.position.lng,data.position.lat);
+                getaddress(data.position.lng,data.position.lat);
+                markerup(data.position.lng,data.position.lat);
+            }//定位成功后
+
+            function onError(data) {
+                weatherApi(113.255, 23.122);
+                getaddress(113.255, 23.122);
+                markerup(113.255, 23.122);
+            }
+
+            function getaddress (lng,lat) {
+                var lnglatXY=[lng, lat];
+                var geocoder = new AMap.Geocoder({
+                    radius: 1000,
+                    extensions: "all"
+                });
+                geocoder.getAddress(lnglatXY, function(status, result) {
+                    if (status === 'complete' && result.info === 'OK') {
+                        $('#search').val(result.regeocode.formattedAddress);
+                    }
+                });
+
+            };//经纬度转地理地址
+
+            (function timeget () {
+                var
+                date = new Date();
+                hour = date.getHours();
+                hourafter = hour - 12;
+                minute = date.getMinutes();
+                if (hour > 12 && minute > 10 ) {
+                    $('#time').text('下午 ' + hourafter + ':' + minute);
+                } else if (hour > 12 && minute < 10) {
+                    $('#time').text('下午 ' + hourafter + ':' + "0" + minute);
+                }else if (hour < 12 && minute > 10) {
+                    $('#time').text('上午 ' + hour + ':' + minute);
+                } else {
+                    $('#time').text('上午 ' + hour + ':' + "0" + minute);
+                }
+                setTimeout(timeget,60000);
+            })();//获取时间
+
+            AMap.event.addListener(map, "click", function(e) {
+                var
+                lngdata = e.lnglat.getLng();
+                latdata = e.lnglat.getLat();
+                map.remove(markerup);
+                weatherApi(lngdata, latdata);
+                markerup(lngdata,latdata);
+            });//鼠标点击监听
+
+            //根据经纬度发请求并对返回数据做处理
+            function weatherApi(lng, lat) {
+                $.ajax({
+                    url: "http://127.0.0.1:3000/now/" + lat + ":" + lng,
+                    type: 'GET',
+                    dataType: 'json',
+                    success: function (result,state,xhr) {
+                        $('.temperature span').text(result.results[0].now.temperature + '°');//温度
+                        getaddress(lng,lat);//地址
+                        var weather = result.results[0].now.text;
+                        if (weather.indexOf("多云") >= 0 && new Date().getHours() < 19 && new Date().getHours() > 7) {
+                            skycons.set("icon", Skycons.PARTLY_CLOUDY_DAY);
+                            skycons.play();
+                        } else if (weather.indexOf("多云") >= 0  && new Date().getHours() >= 19 || new Date().getHours() <= 7) {
+                            skycons.set("icon", Skycons.PARTLY_CLOUDY_NIGHT);
+                            skycons.play();
+                        } else if (weather.indexOf("雾") >= 0 ) {
+                            skycons.set("icon", Skycons.FOG);
+                            skycons.play();
+                        } else if (weather.indexOf("晴") >= 0 && new Date().getHours() < 19 && new Date().getHours() > 7) {
+                            skycons.set("icon", Skycons.CLEAR_DAY);
+                            skycons.play();
+                        } else if (weather.indexOf("晴") >= 0  && new Date().getHours() >= 19 || new Date().getHours() <= 7) {
+                            skycons.set("icon", Skycons.CLEAR_NIGHT);
+                            skycons.play();
+                        } else if (weather.indexOf("阴") >= 0 ) {
+                            skycons.set("icon", Skycons.CLOUDY);
+                            skycons.play();
+                        } else if (weather.indexOf("雨") >= 0 ) {
+                            skycons.set("icon", Skycons.RAIN);
+                            skycons.play();
+                        } else if (weather.indexOf("雪") >= 0) {
+                            skycons.set("icon", Skycons.SNOW);
+                            skycons.play();
+                        } else if (weather.indexOf("风") >= 0 ) {
+                            skycons.set("icon", Skycons.WIND);
+                            skycons.play();
+                        }//icon
+                    },
+                    error: function () {
+
+                    },
+                    complete: function () {
+
+                    },
+                });
+            }
+
+            $('#search').keydown(function (e) {
+                if (e.keyCode == 13) {
+                    AMap.service(["AMap.PlaceSearch"], function() {
+                        var placeSearch = new AMap.PlaceSearch({ //构造地点查询类
+                            pageSize: 1,
+                            pageIndex: 1,
+                            map: map,
+                            zoomToAccuracy: false,
+                        });
+                        var searchcontent = $('#search').val();
+                        placeSearch.search(searchcontent);
+                        AMap.event.addListener(placeSearch, 'complete', searchComplete);
+                    })
+                }
+            })
+
+            function searchComplete (SearchResult) {
+                var result = SearchResult.poiList.pois[0].location;
+                weatherApi(result.lng,result.lat);
+                markerup(result.lng,result.lat);
+            }
+        });
+
+
+
+    </script>
+    </body>
+</html>
