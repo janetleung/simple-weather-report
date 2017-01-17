@@ -7,6 +7,7 @@
         <script type="text/javascript" src="/js/jquery-1.4.4.min.js"></script>
         <script src="http://webapi.amap.com/maps?v=1.3&key=9669d8eb412ac96cb6db5d20ebba31ba&callback=init"></script>
         <script src='/js/skycons.js'></script>
+
     </head>
     <body>
         <div class="head">
@@ -95,45 +96,55 @@
                 marker.setPosition([lng,lat]);
             };//建立标识的方法
 
-            map.plugin('AMap.Geolocation', function() {
-                geolocation = new AMap.Geolocation({
-                    enableHighAccuracy: true,
-                    showButton: false,
-                    showMarker: false,
-                    timeout: 10000,
-                    zoomToAccuracy: false,
+            AMap.service('AMap.Geocoder', function(){//回调函数
+                geocoder = new AMap.Geocoder({
+                    radius: 1000,
+                    extensions: "all"
                 });
-                map.addControl(geolocation);
-                geolocation.getCurrentPosition();
-                AMap.event.addListener(geolocation, 'complete', onComplete);
-                AMap.event.addListener(geolocation, 'error', onError);
-            });//初始地址定位
+                AMap.plugin('AMap.Geolocation', function() {
+                    geolocation = new AMap.Geolocation({
+                        enableHighAccuracy: true,
+                        showButton: false,
+                        showMarker: false,
+                        timeout: 10000,
+                        showCircle: false,
+                        zoomToAccuracy: false,
+                    });
+                    map.addControl(geolocation);
+                    geolocation.getCurrentPosition();
+                    AMap.event.addListener(geolocation, 'complete', onComplete);
+                    AMap.event.addListener(geolocation, 'error', onError);
+                });//初始地址定位
+            });
+
 
             function onComplete(data) {
                 weatherApi(data.position.lng,data.position.lat);
-                getaddress(data.position.lng,data.position.lat);
+                regeocoder(data.position.lng,data.position.lat);
                 markerup(data.position.lng,data.position.lat);
             }//定位成功后
 
             function onError(data) {
                 weatherApi(113.255, 23.122);
-                getaddress(113.255, 23.122);
+                regeocoder(113.255, 23.122);
                 markerup(113.255, 23.122);
             }
 
-            function getaddress (lng,lat) {
+
+            function regeocoder(lng,lat) {  //逆地理编码
                 var lnglatXY=[lng, lat];
-                var geocoder = new AMap.Geocoder({
-                    radius: 1000,
-                    extensions: "all"
-                });
                 geocoder.getAddress(lnglatXY, function(status, result) {
                     if (status === 'complete' && result.info === 'OK') {
-                        $('#search').val(result.regeocode.formattedAddress);
+                        geocoder_CallBack(result);
                     }
                 });
+            }
 
-            };//经纬度转地理地址
+            function geocoder_CallBack(data) {
+                var address = data.regeocode.formattedAddress; //返回地址描述
+                    $('#search').val(address);
+                }
+
 
             (function timeget () {
                 var
@@ -170,11 +181,12 @@
                     dataType: 'json',
                     success: function (result,state,xhr) {
                         $('.temperature span').text(result.results[0].now.temperature + '°');//温度
-                        getaddress(lng,lat);//地址
+                        regeocoder(lng,lat);//地址
                         var weather = result.results[0].now.text;
                         if (weather.indexOf("多云") >= 0 && new Date().getHours() < 19 && new Date().getHours() > 7) {
                             skycons.set("icon", Skycons.PARTLY_CLOUDY_DAY);
                             skycons.play();
+                            console.log(123);
                         } else if (weather.indexOf("多云") >= 0  && new Date().getHours() >= 19 || new Date().getHours() <= 7) {
                             skycons.set("icon", Skycons.PARTLY_CLOUDY_NIGHT);
                             skycons.play();
